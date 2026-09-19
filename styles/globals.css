@@ -1,0 +1,84 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+
+:root {
+  --bg: #17140f;
+  --bg-panel: #1f1b14;
+  --bg-input: #221d15;
+  --line: #3a3225;
+  --ink: #ece5d6;
+  --ink-dim: #a89d85;
+  --amber: #d9a94d;
+  --amber-dim: #a3813d;
+  --green: #8faa6b;
+  --red: #c1666b;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image: radial-gradient(
+    circle at 15% 0%,
+    rgba(217, 169, 77, 0.06),
+    transparent 45%
+  );
+}
+
+a {
+  color: var(--amber);
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--amber);
+  color: #171310;
+}
+
+[data-theme="light"] {
+  --bg: #faf6ec;
+  --bg-panel: #f1e9d6;
+  --bg-input: #ffffff;
+  --line: #ddd0ac;
+  --ink: #241f14;
+  --ink-dim: #6f6448;
+  --amber: #a8762c;
+  --amber-dim: #8a5f22;
+  --green: #5c7a44;
+  --red: #a4454b;
+}
+
+[data-theme="light"] body {
+  background-image: radial-gradient(
+    circle at 15% 0%,
+    rgba(168, 118, 44, 0.08),
+    transparent 45%
+  );
+}
+
+[data-theme="light"] ::selection {
+  background: var(--amber);
+  color: #fffdf7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
