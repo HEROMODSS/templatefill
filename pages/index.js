@@ -2,35 +2,29 @@ import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 
 function buildTemplate(data) {
-  const nameVersion = data.version
-    ? `${data.name} v${data.version}`
-    : data.name;
+  const nameVersion = data.version ? `${data.name} v${data.version}` : data.name;
+  return `[b]${nameVersion}[/b]
+[u]Requirements:[/u] ${data.requirements}
+[u]Overview:[/u] ${data.overview}
 
-  const template = [
-    `[b]${nameVersion}[/b]`,
-    `[u]Requirements:[/u] ${data.requirements}`,
-    `[u]Overview:[/u] ${data.overview}`,
-    ``,
-    `https://images.mobilism.org/index.php (upload your imgs here.)`,
-    `[break]`,
-    `${data.description || ""}`,
-    ``,
-    `[u]What's New:[/u]`,
-    `${data.whatsNew || "- Changelog not provided"}`,
-    ``,
-    `[b]This app has credit advertisements[/b]`,
-    ``,
-    `[u]More Info:[/u]`,
-    `[code]${data.playStoreUrl}[/code]`,
-    `[u]Download Instructions:[/u]`,
-    ``,
-    `Mirrors:`,
-    ``,
-    ``,
-    `Trouble downloading? Read [url=https://forum.mobilism.org/viewtopic.php?f=19&t=649944][b]This[/b][/url].`
-  ];
+https://images.mobilism.org/index.php (upload your imgs here.)
+[break]
+${data.description}
 
-  return template.join("\n");
+[u]What's New:[/u]
+${data.whatsNew || "- Changelog not provided"}
+
+[b]This app has credit advertisements[/b]
+
+[u]More Info:[/u]
+[code]${data.playStoreUrl}[/code]
+[u]Download Instructions:[/u]
+
+
+Mirrors:
+
+
+Trouble downloading? Read [url=https://forum.mobilism.org/viewtopic.php?f=19&t=649944][b]This[/b][/url].`;
 }
 
 export default function Home() {
@@ -54,53 +48,23 @@ export default function Home() {
 
   async function handleFetch() {
     if (!playUrl.trim()) return;
-
-    setStatus({
-      kind: "loading",
-      text: "Fetching from the Play Store…",
-    });
-
+    setStatus({ kind: "loading", text: "Fetching from the Play Store…" });
     try {
-      const res = await fetch(
-        `/api/fetch-app?url=${encodeURIComponent(playUrl.trim())}`
-      );
-
+      const res = await fetch(`/api/fetch-app?url=${encodeURIComponent(playUrl.trim())}`);
       const data = await res.json();
-
       if (!res.ok) {
         setStatus({
           kind: "error",
-          text: data.detail
-            ? `${data.error} (${data.detail})`
-            : data.error || "Fetch failed.",
+          text: data.detail ? `${data.error} (${data.detail})` : data.error || "Fetch failed.",
         });
         return;
       }
-
       setOutput(buildTemplate(data));
-
-      setImage(
-        (data.screenshots && data.screenshots[0]) || data.icon || ""
-      );
-
+      setImage((data.screenshots && data.screenshots[0]) || data.icon || "");
       setAppName(data.name);
-
-      if (data.partial) {
-        setStatus({
-          kind: "loading",
-          text: `Pulled "${data.name}" with full description — version, requirements and what's new aren't in Google's static page for this app, fill them in manually below.`,
-        });
-      } else {
-        setStatus({
-          kind: "ok",
-          text: `Pulled "${data.name}" — edit freely below.`,
-        });
-      }
+      setStatus({ kind: "ok", text: `Pulled "${data.name}" — edit freely below.` });
     } catch (err) {
-      setStatus({
-        kind: "error",
-        text: "Network error. Try again.",
-      });
+      setStatus({ kind: "error", text: "Network error. Try again." });
     }
   }
 
@@ -118,12 +82,9 @@ export default function Home() {
         <p className={styles.brand}>
           template<span>fill</span>
         </p>
-
         <button
           className={styles.themeBtn}
-          onClick={() =>
-            setTheme((t) => (t === "dark" ? "light" : "dark"))
-          }
+          onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
           aria-label="Toggle theme"
         >
           <span className={styles.themeDot} />
@@ -140,66 +101,40 @@ export default function Home() {
           onChange={(e) => setPlayUrl(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleFetch()}
         />
-
-        <button
-          className={styles.btn}
-          onClick={handleFetch}
-          disabled={status?.kind === "loading"}
-        >
+        <button className={styles.btn} onClick={handleFetch} disabled={status?.kind === "loading"}>
           {status?.kind === "loading" ? "Fetching…" : "Fetch"}
         </button>
       </div>
 
       {status && (
-        <div
-          className={`${styles.status} ${styles[status.kind]}`}
-        >
-          {status.text}
-        </div>
+        <div className={`${styles.status} ${styles[status.kind]}`}>{status.text}</div>
       )}
 
       <div className={styles.grid}>
         <div className={styles.imageCard}>
           <span className={styles.imageLabel}>PREVIEW</span>
-
           {image ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={image}
-              alt={appName}
-              className={styles.imagePic}
-            />
+            <img src={image} alt={appName} className={styles.imagePic} />
           ) : (
             <div className={styles.imageEmpty}>
               <span className={styles.imageEmptyGlyph}>▢</span>
               <span>fetch an app to load its image</span>
             </div>
           )}
-
-          {appName && (
-            <span className={styles.imageCaption}>
-              {appName}
-            </span>
-          )}
+          {appName && <span className={styles.imageCaption}>{appName}</span>}
         </div>
 
         <div className={styles.outputCard}>
           <div className={styles.outputBar}>
             <span>listing.bbcode</span>
-
             <div className={styles.outputBarRight}>
               <span>{output.length} chars</span>
-
-              <button
-                className={styles.copyBtn}
-                onClick={handleCopy}
-                disabled={!output}
-              >
+              <button className={styles.copyBtn} onClick={handleCopy} disabled={!output}>
                 {copied ? "Copied ✓" : "Copy"}
               </button>
             </div>
           </div>
-
           <textarea
             className={styles.outputBody}
             value={output}
@@ -212,5 +147,3 @@ export default function Home() {
     </div>
   );
 }
-
-//The important change is that "[break]" and the description are now separate array entries, so they cannot accidentally become part of the wrong line or be omitted by the template formatting.
