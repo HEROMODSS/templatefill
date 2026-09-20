@@ -7,7 +7,7 @@ function buildTemplate(data) {
 [u]Requirements:[/u] ${data.requirements}
 [u]Overview:[/u] ${data.overview}
 
-https://images.mobilism.org/index.php (upload your imgs here.)
+Enter image here (replace this text). (Don't change this part)
 [break]
 ${data.description}
 
@@ -18,14 +18,9 @@ ${data.whatsNew || "(no recent changes listed — add manually)"}
 
 [u]More Info:[/u]
 [code]${data.playStoreUrl}[/code]
-[u]Download Instructions:[/u]
-
-Mirrors:
-
-
-
+[u]Download Instructions:[/u](Don't change this and following part)
 Download app from playstore 
-Trouble downloading? Read [url=https://forum.mobilism.org/viewtopic.php?f=19&t=649944][b]This[/b][/url].`;
+Trouble downloading? Read [url=apppromo.com][b]This[/b][/url].`;
 }
 
 export default function Home() {
@@ -67,7 +62,7 @@ export default function Home() {
         data.partial
           ? {
               kind: "loading",
-              text: `Got partial data for "${data.name}" — the full scraper failed for this app, so version/requirements/what's new are blank. Fill them in below.`,
+              text: `Pulled "${data.name}" with full description — Google no longer exposes version/requirements/what's-new in the static page for this app, so those 3 fields need a manual fill below.`,
             }
           : { kind: "ok", text: `Pulled "${data.name}" — edit freely below.` }
       );

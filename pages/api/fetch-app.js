@@ -24,8 +24,6 @@ function stripEmojis(str) {
     .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, "") // regional indicators (flag emoji)
     .replace(/[\u200D\uFE0F\u2060]/gu, ""); // ZWJ / variation selector / word joiner
 
-  // collapse double-spaces left behind by removal, but keep each line's
-  // original leading indentation (Play Store descriptions use it for bullets)
   return noEmoji
     .split("\n")
     .map((line) => {
@@ -60,8 +58,24 @@ async function fallbackScrape(appId) {
 
   let title = grab(/<meta property="og:title" content="([^"]+)"/);
   title = title.replace(/\s*-\s*Apps on Google Play\s*$/i, "");
-  const description = grab(/<meta property="og:description" content="([^"]+)"/);
+  const shortDescription = grab(/<meta property="og:description" content="([^"]+)"/);
   const icon = grab(/<meta property="og:image" content="([^"]+)"/);
+
+  let fullDescription = "";
+  let category = "";
+  const ldMatches = [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)];
+  for (const m of ldMatches) {
+    try {
+      const parsed = JSON.parse(m[1]);
+      const obj = Array.isArray(parsed) ? parsed.find((p) => p && p.description) : parsed;
+      if (obj && obj.description && obj.description.length > fullDescription.length) {
+        fullDescription = obj.description;
+      }
+      if (obj && obj.applicationCategory) category = obj.applicationCategory;
+    } catch (e) {
+      // not valid JSON — skip this block
+    }
+  }
 
   const screenshotSet = new Set(
     Array.from(html.matchAll(/https:\/\/play-lh\.googleusercontent\.com\/[A-Za-z0-9_-]+=w526-h296/g)).map(
@@ -71,8 +85,10 @@ async function fallbackScrape(appId) {
 
   return {
     title,
-    description,
+    description: fullDescription || shortDescription,
+    overview: shortDescription,
     icon,
+    category,
     screenshots: Array.from(screenshotSet).slice(0, 6),
   };
 }
@@ -85,7 +101,6 @@ function extractAppId(rawUrl) {
   } catch (e) {
     // not a full URL — maybe the user pasted the bare package id
   }
-  // fallback: something like "com.whatsapp" typed directly
   if (/^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/.test(rawUrl.trim())) {
     return rawUrl.trim();
   }
@@ -134,7 +149,6 @@ export default async function handler(req, res) {
       });
     } catch (err) {
       lastErr = err;
-      // try the next region
     }
   }
 
@@ -146,12 +160,13 @@ export default async function handler(req, res) {
         name: stripEmojis(fb.title),
         version: "",
         requirements: "",
-        overview: stripEmojis(fb.description),
+        overview: stripEmojis(fb.overview || fb.description),
         description: stripEmojis(fb.description),
         whatsNew: "",
         icon: fb.icon,
         screenshots: fb.screenshots,
         developer: "",
+        category: fb.category,
         playStoreUrl: `https://play.google.com/store/apps/details?id=${appId}`,
         partial: true,
       });
