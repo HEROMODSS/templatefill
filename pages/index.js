@@ -58,14 +58,14 @@ export default function Home() {
       setOutput(buildTemplate(data));
       setImage((data.screenshots && data.screenshots[0]) || data.icon || "");
       setAppName(data.name);
-      setStatus(
-        data.partial
-          ? {
-              kind: "loading",
-              text: `Pulled "${data.name}" with full description — Google no longer exposes version/requirements/what's-new in the static page for this app, so those 3 fields need a manual fill below.`,
-            }
-          : { kind: "ok", text: `Pulled "${data.name}" — edit freely below.` }
-      );
+      if (data.partial) {
+        setStatus({
+          kind: "loading",
+          text: `Pulled "${data.name}" with full description — version, requirements and what's new aren't in Google's static page for this app, fill them in manually below.`,
+        });
+      } else {
+        setStatus({ kind: "ok", text: `Pulled "${data.name}" — edit freely below.` });
+      }
     } catch (err) {
       setStatus({ kind: "error", text: "Network error. Try again." });
     }
