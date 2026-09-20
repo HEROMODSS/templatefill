@@ -2,29 +2,35 @@ import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 
 function buildTemplate(data) {
-  const nameVersion = data.version ? `${data.name} v${data.version}` : data.name;
+  const nameVersion = data.version
+    ? `${data.name} v${data.version}`
+    : data.name;
 
-  return `[b]${nameVersion}[/b]
-[u]Requirements:[/u] ${data.requirements}
-[u]Overview:[/u] ${data.overview}
+  const template = [
+    `[b]${nameVersion}[/b]`,
+    `[u]Requirements:[/u] ${data.requirements}`,
+    `[u]Overview:[/u] ${data.overview}`,
+    ``,
+    `https://images.mobilism.org/index.php (upload your imgs here.)`,
+    `[break]`,
+    `${data.description || ""}`,
+    ``,
+    `[u]What's New:[/u]`,
+    `${data.whatsNew || "- Changelog not provided"}`,
+    ``,
+    `[b]This app has credit advertisements[/b]`,
+    ``,
+    `[u]More Info:[/u]`,
+    `[code]${data.playStoreUrl}[/code]`,
+    `[u]Download Instructions:[/u]`,
+    ``,
+    `Mirrors:`,
+    ``,
+    ``,
+    `Trouble downloading? Read [url=https://forum.mobilism.org/viewtopic.php?f=19&t=649944][b]This[/b][/url].`
+  ];
 
-https://images.mobilism.org/index.php (upload your imgs here.)
-[break]
-${data.description}
-
-[u]What's New:[/u]
-${data.whatsNew || "- Changelog not provided"}
-
-[b]This app has credit advertisements[/b]
-
-[u]More Info:[/u]
-[code]${data.playStoreUrl}[/code]
-[u]Download Instructions:[/u]
-
-Mirrors:
-
-
-Trouble downloading? Read [url=https://forum.mobilism.org/viewtopic.php?f=19&t=649944][b]This[/b][/url].`;
+  return template.join("\n");
 }
 
 export default function Home() {
@@ -49,7 +55,10 @@ export default function Home() {
   async function handleFetch() {
     if (!playUrl.trim()) return;
 
-    setStatus({ kind: "loading", text: "Fetching from the Play Store…" });
+    setStatus({
+      kind: "loading",
+      text: "Fetching from the Play Store…",
+    });
 
     try {
       const res = await fetch(
@@ -69,9 +78,11 @@ export default function Home() {
       }
 
       setOutput(buildTemplate(data));
+
       setImage(
         (data.screenshots && data.screenshots[0]) || data.icon || ""
       );
+
       setAppName(data.name);
 
       if (data.partial) {
@@ -140,7 +151,9 @@ export default function Home() {
       </div>
 
       {status && (
-        <div className={`${styles.status} ${styles[status.kind]}`}>
+        <div
+          className={`${styles.status} ${styles[status.kind]}`}
+        >
           {status.text}
         </div>
       )}
@@ -164,7 +177,9 @@ export default function Home() {
           )}
 
           {appName && (
-            <span className={styles.imageCaption}>{appName}</span>
+            <span className={styles.imageCaption}>
+              {appName}
+            </span>
           )}
         </div>
 
@@ -197,3 +212,5 @@ export default function Home() {
     </div>
   );
 }
+
+//The important change is that "[break]" and the description are now separate array entries, so they cannot accidentally become part of the wrong line or be omitted by the template formatting.
