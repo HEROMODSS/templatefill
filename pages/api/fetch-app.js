@@ -79,6 +79,7 @@ async function fallbackScrape(appId) {
 
 function extractAppId(rawUrl) {
   try {
+    const u = new URL(rawUrl.trim());
     const idFromQuery = u.searchParams.get("id");
     if (idFromQuery) return idFromQuery;
   } catch (e) {
