@@ -7,12 +7,12 @@ function buildTemplate(data) {
 [u]Requirements:[/u] ${data.requirements}
 [u]Overview:[/u] ${data.overview}
 
-Enter image here (replace this text). (Don't change this part)
+https://images.mobilism.org/index.php (upload your imgs here.)
 [break]
 ${data.description}
 
 [u]What's New:[/u]
-${data.whatsNew || "(no recent changes listed — add manually)"}
+${data.whatsNew || "- Changelog not provided"}
 
 [b]This app has credit advertisements[/b]
 
@@ -20,7 +20,7 @@ ${data.whatsNew || "(no recent changes listed — add manually)"}
 [code]${data.playStoreUrl}[/code]
 [u]Download Instructions:[/u](Don't change this and following part)
 Download app from playstore 
-Trouble downloading? Read [url=apppromo.com][b]This[/b][/url].`;
+Trouble downloading? Read [url=https://forum.mobilism.org/viewtopic.php?f=19&t=649944][b]This[/b][/url].`;
 }
 
 export default function Home() {
