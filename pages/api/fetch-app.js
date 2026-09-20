@@ -43,6 +43,56 @@ function decodeHtmlEntities(str) {
     .replace(/&gt;/g, ">");
 }
 
+function extractBetween(html, startMarkers, endMarkers) {
+  let startIdx = -1;
+  for (const marker of startMarkers) {
+    const idx = html.indexOf(marker);
+    if (idx !== -1) {
+      startIdx = idx + marker.length;
+      break;
+    }
+  }
+  if (startIdx === -1) return "";
+  let endIdx = html.length;
+  for (const marker of endMarkers) {
+    const idx = html.indexOf(marker, startIdx);
+    if (idx !== -1 && idx < endIdx) endIdx = idx;
+  }
+  return html.slice(startIdx, endIdx);
+}
+
+const ICON_LIGATURES = [
+  "arrow_forward",
+  "info_outline",
+  "expand_more",
+  "more_vert",
+  "flag",
+  "phone_android",
+  "public",
+  "email",
+  "shield",
+  "chevron_right",
+  "check_circle",
+  "star_rate",
+];
+
+function htmlFragmentToText(fragment) {
+  let text = fragment
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|li)>/gi, "\n")
+    .replace(/<[^>]+>/g, "");
+  text = decodeHtmlEntities(text);
+  const iconPattern = new RegExp(`\\b(${ICON_LIGATURES.join("|")})\\b`, "g");
+  text = text.replace(iconPattern, "");
+  return text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l, i, arr) => l.length > 0 || (arr[i - 1] && arr[i - 1].length > 0))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 async function fallbackScrape(appId) {
   const pageUrl = `https://play.google.com/store/apps/details?id=${appId}&hl=en&gl=us`;
   const res = await fetch(pageUrl, {
@@ -77,6 +127,16 @@ async function fallbackScrape(appId) {
     }
   }
 
+  const aboutSectionHtml = extractBetween(
+    html,
+    ["About this app"],
+    ["Data safety", "Ratings and reviews", "App support", "More by", "Updated on"]
+  );
+  const scrapedDescription = htmlFragmentToText(aboutSectionHtml);
+
+  const candidates = [fullDescription, scrapedDescription, shortDescription].filter(Boolean);
+  const bestDescription = candidates.reduce((a, b) => (b.length > a.length ? b : a), "");
+
   const screenshotSet = new Set(
     Array.from(html.matchAll(/https:\/\/play-lh\.googleusercontent\.com\/[A-Za-z0-9_-]+=w526-h296/g)).map(
       (m) => m[0]
@@ -85,7 +145,7 @@ async function fallbackScrape(appId) {
 
   return {
     title,
-    description: fullDescription || shortDescription,
+    description: bestDescription,
     overview: shortDescription,
     icon,
     category,
