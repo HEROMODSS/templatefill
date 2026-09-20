@@ -18,8 +18,11 @@ ${data.whatsNew || "- Changelog not provided"}
 
 [u]More Info:[/u]
 [code]${data.playStoreUrl}[/code]
-[u]Download Instructions:[/u](Don't change this and following part)
-Download app from playstore 
+[u]Download Instructions:[/u]
+
+Mirrors:
+
+
 Trouble downloading? Read [url=https://forum.mobilism.org/viewtopic.php?f=19&t=649944][b]This[/b][/url].`;
 }
 
